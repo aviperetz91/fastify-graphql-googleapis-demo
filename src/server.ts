@@ -1,10 +1,9 @@
 import fastify from 'fastify';
 import dotenv from 'dotenv';
 import { google } from 'googleapis';
-import axios from 'axios';
 import mercurius from 'mercurius';
-import { bookSchema } from './graphql/bookSubgraph/bookShema';
-import { bookResolvers } from './graphql/bookSubgraph/bookResolvers';
+import { peopleSchema } from './graphql/peopleSubgraph/peopleSchema';
+import { peopleResolvers } from './graphql/peopleSubgraph/peopleResolvers';
 
 dotenv.config();
 
@@ -27,7 +26,6 @@ server.get('/', async (request, reply) => {
         access_type: 'offline',
         scope: scopes,
     });
-    console.log("=== Authorization URL: ", authUrl);
     return reply.redirect(authUrl);
 });
 
@@ -36,46 +34,29 @@ server.get('/auth/callback', async (request, reply) => {
     if (!authCode) {
         return reply.status(400).send({ error: 'Authorization code not provided' });
     }
-    console.log("=== Authorization Code: ", authCode);
     try {
         const { tokens } = await oAuth2Client.getToken(authCode);
         const accessToken = tokens.access_token;
-        console.log("=== Access Token: ", accessToken);
-        reply.redirect(`/validateToken?accessToken=${accessToken}`)
+        const refreshToken = tokens.refresh_token;
+        oAuth2Client.setCredentials({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+        });
+        reply.redirect(`/graphql?accessToken=${accessToken}`)
     } catch (error: any) {
         console.error('Error during authentication:', error);
         reply.status(500).send({ error: 'Internal Server Error' });
     }
 });
 
-server.get('/validateToken', async (request, reply) => {
-    const accessToken = (request.query as any).accessToken;
-    if (!accessToken) {
-        return reply.status(400).send({ error: 'Access token not provided' });
-    }
-    try {
-        // const ticket = await oAuth2Client.verifyIdToken({
-        //     idToken: accessToken,
-        //     audience: CLIENT_ID,
-        // });
-        // const tokenInfo = ticket.getPayload();
-        // if (!tokenInfo) {
-        //     throw new Error('Invalid token payload');
-        // }
-        const tokenInfoResponse = await axios.get(`https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${accessToken}`);
-        const tokenInfo = tokenInfoResponse.data;
-        console.log("=== Token Info", tokenInfo);
-    } catch (error) {
-        console.error('Error during token validation:', error);
-        reply.status(500).send({ error: 'Internal Server Error' });
-    }
-});
-
 server.register(mercurius, {
-    schema: bookSchema,
-    resolvers: bookResolvers,
+    schema: peopleSchema,
+    resolvers: peopleResolvers,
     path: '/graphql',
     graphiql: true,
+    context: (request, reply) => {
+        return { accessToken: (request.query as any).accessToken };
+    },
 });
 
 const start = async () => {
