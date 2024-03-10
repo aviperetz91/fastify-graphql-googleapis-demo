@@ -2,9 +2,11 @@ import fastify from 'fastify';
 import dotenv from 'dotenv';
 import { google } from 'googleapis';
 import axios from 'axios';
+import mercurius from 'mercurius';
+import { bookSchema } from './graphql/bookSubgraph/bookShema';
+import { bookResolvers } from './graphql/bookSubgraph/bookResolvers';
 
 dotenv.config();
-console.log(process.env);
 
 const PORT = 3000;
 const CLIENT_ID = process.env.CLIENT_ID;
@@ -67,6 +69,13 @@ server.get('/validateToken', async (request, reply) => {
         console.error('Error during token validation:', error);
         reply.status(500).send({ error: 'Internal Server Error' });
     }
+});
+
+server.register(mercurius, {
+    schema: bookSchema,
+    resolvers: bookResolvers,
+    path: '/graphql',
+    graphiql: true,
 });
 
 const start = async () => {

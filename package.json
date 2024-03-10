@@ -14,7 +14,9 @@
     "axios": "^1.6.7",
     "dotenv": "^16.4.5",
     "fastify": "^4.26.2",
-    "googleapis": "^133.0.0"
+    "googleapis": "^133.0.0",
+    "graphql": "^16.8.1",
+    "mercurius": "^13.4.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.25",
