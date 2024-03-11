@@ -1,4 +1,4 @@
-export const peopleSchema = `
+export const contactSchema = `
     type Contact {
         name: String!
         email: String!

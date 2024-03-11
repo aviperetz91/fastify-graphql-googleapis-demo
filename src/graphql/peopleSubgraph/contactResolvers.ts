@@ -7,18 +7,18 @@ export interface Contact {
     email: String;
 }
 
-export async function fetchContactsData(accessToken: String): Promise<Contact[]> {
+export async function fetchContactsData(accessToken: string): Promise<Contact[]> {
     try {
         await validateGoogleAccessToken(accessToken);
         // const googlePeople = google.people({
         //     version: 'v1',
         //     auth: accessToken,
         // });
-        // const response = await googlePeople.people.connections.list({
+        // const contactsResponse = await googlePeople.people.connections.list({
         //     resourceName: 'people/me',
         //     personFields: 'names,emailAddresses',
         // });
-        const response = await axios.get(
+        const contactsResponse = await axios.get(
             'https://people.googleapis.com/v1/people/me/connections',
             {
                 headers: {
@@ -29,8 +29,8 @@ export async function fetchContactsData(accessToken: String): Promise<Contact[]>
                 },
             }
         );
-        let connections = response.data.connections || [];
-        const contacts: Contact[] = connections.map((contact: any) => ({
+        let contactListData = contactsResponse.data.connections || [];
+        const contacts: Contact[] = contactListData.map((contact: any) => ({
             name: contact.names && contact.names.length > 0 ? contact.names[0].displayName || '' : '',
             email: contact.emailAddresses && contact.emailAddresses.length > 0 ? contact.emailAddresses[0].value || '' : '',
         }));
@@ -41,7 +41,7 @@ export async function fetchContactsData(accessToken: String): Promise<Contact[]>
     }
 }
 
-export const peopleResolvers = {
+export const contactResolvers = {
     Query: {
         contacts: async (_: any, __: any, context: any) => {
             return fetchContactsData(context.accessToken);

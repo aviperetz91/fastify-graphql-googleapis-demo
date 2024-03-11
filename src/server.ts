@@ -2,8 +2,11 @@ import fastify from 'fastify';
 import dotenv from 'dotenv';
 import { google } from 'googleapis';
 import mercurius from 'mercurius';
-import { peopleSchema } from './graphql/peopleSubgraph/peopleSchema';
-import { peopleResolvers } from './graphql/peopleSubgraph/peopleResolvers';
+import { makeExecutableSchema } from 'graphql-tools';
+import { contactSchema } from './graphql/peopleSubgraph/contactSchema';
+import { contactResolvers } from './graphql/peopleSubgraph/contactResolvers';
+import { eventSchema } from './graphql/calendarSubgraph/eventSchema';
+import { eventResolvers } from './graphql/calendarSubgraph/eventResolvers';
 
 dotenv.config();
 
@@ -49,9 +52,20 @@ server.get('/auth/callback', async (request, reply) => {
     }
 });
 
+const mergedSchema = makeExecutableSchema({
+    typeDefs: [contactSchema, eventSchema],
+});
+
+const mergedResolvers = {
+    Query: {
+        ...contactResolvers.Query,
+        ...eventResolvers.Query,
+    }
+};
+
 server.register(mercurius, {
-    schema: peopleSchema,
-    resolvers: peopleResolvers,
+    schema: mergedSchema,
+    resolvers: mergedResolvers,
     path: '/graphql',
     graphiql: true,
     context: (request, reply) => {
