@@ -1,50 +1,47 @@
 // import { google } from 'googleapis';
 import axios from 'axios';
-import { validateGoogleAccessToken } from '../../utils/validateGoogleAccessToken';
+import { GoogleConnection, GoogleConnectionList } from './googleConnectionTypes';
 
-export interface Contact {
-    name: String;
-    email: String;
+interface Contact {
+  name: string;
+  email: string;
+  phoneNumber: string;
 }
 
-export async function fetchContactsData(accessToken: string): Promise<Contact[]> {
-    try {
-        await validateGoogleAccessToken(accessToken);
-        // const googlePeople = google.people({
-        //     version: 'v1',
-        //     auth: accessToken,
-        // });
-        // const contactsResponse = await googlePeople.people.connections.list({
-        //     resourceName: 'people/me',
-        //     personFields: 'names,emailAddresses',
-        // });
-        const contactsResponse = await axios.get(
-            'https://people.googleapis.com/v1/people/me/connections',
-            {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-                params: {
-                    personFields: 'names,emailAddresses',
-                },
-            }
-        );
-        let contactListData = contactsResponse.data.connections || [];
-        const contacts: Contact[] = contactListData.map((contact: any) => ({
-            name: contact.names && contact.names.length > 0 ? contact.names[0].displayName || '' : '',
-            email: contact.emailAddresses && contact.emailAddresses.length > 0 ? contact.emailAddresses[0].value || '' : '',
-        }));
-        return contacts;
-    } catch (error: any) {
-        console.error('Failed to fetch People data:', error);
-        throw new Error('Failed to fetch People data');
-    }
+async function fetchContacts(accessToken: string): Promise<Contact[]> {
+  try {
+    // const googlePeople = google.people({
+    //   version: 'v1',
+    //   auth: accessToken,
+    // });
+    // const googleConnectionListResponse = await googlePeople.people.connections.list({
+    //   resourceName: 'people/me',
+    //   personFields: 'names,emailAddresses,phoneNumbers',
+    // });
+    const googleConnectionListResponse = await axios.get<GoogleConnectionList>(
+      'https://people.googleapis.com/v1/people/me/connections',
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        params: { personFields: 'names,emailAddresses,phoneNumbers' },
+      }
+    );
+    let googleConnections: GoogleConnection[] = googleConnectionListResponse.data.connections || [];
+    const contactList: Contact[] = googleConnections.map((gConnection: GoogleConnection) => ({
+      name: gConnection.names?.[0]?.displayName ?? '',
+      email: gConnection.emailAddresses?.[0]?.value ?? '',
+      phoneNumber: gConnection.phoneNumbers?.[0]?.canonicalForm ?? '',
+    }));
+    return contactList;
+  } catch (error) {
+    console.error('Failed to fetch People data:', error);
+    throw new Error('Failed to fetch People data');
+  }
 }
 
 export const contactResolvers = {
-    Query: {
-        contacts: async (_: any, __: any, context: any) => {
-            return fetchContactsData(context.accessToken);
-        }
-    }
-}
+  Query: {
+    contacts: async (_: any, __: any, context: any) => {
+      return fetchContacts(context.accessToken);
+    },
+  },
+};
