@@ -1,28 +1,29 @@
 {
-  "name": "onboarding-task",
+  "name": "fastify-graphql-googleapis",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node src/server.ts",
-    "dev": "nodemon --exec ts-node src/server.ts"
+    "start": "ts-node server.ts",
+    "dev": "nodemon --exec ts-node server.ts"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@graphql-tools/schema": "^10.0.3",
     "axios": "^1.6.7",
     "dotenv": "^16.4.5",
     "fastify": "^4.26.2",
     "googleapis": "^133.0.0",
     "graphql": "^16.8.1",
-    "graphql-tools": "^9.0.1",
+    "graphql-import-node": "^0.0.5",
     "mercurius": "^13.4.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.25",
     "nodemon": "^3.1.0",
     "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0"
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.4.2"
   }
 }
