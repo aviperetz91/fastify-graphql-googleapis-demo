@@ -11,45 +11,22 @@ This backend perform authenticate using Google tokens and fetch user data from G
 6. Start the server using `npm start` or `npm run dev` for keeping it running.
 
 ### Configuring an OAuth application in GCP
-1. Create a Google Clound account here: https://cloud.google.com
+1. Create a Google Clound account here: https://cloud.google.com.
 2. Create the OAuth application.
-3. Enabled respective APIs and Services
-4. Create OAuth consent screen App
-5. Create Credentials and Oauth 2.0 Client
-6. Generate Access tokens
+3. Enabled respective APIs and Services.
+4. Create OAuth consent screen App.
+5. Create Credentials and Oauth 2.0 Client.
+6. Generate Access tokens.
 
 ## Sequence Diagrams:
 
 1) Obtaining and validating the Google access token:
 
-Client          Backend         Google OAuth Server
-   |               |                    |
-   |    Request    | Generate Auth Url  |
-   |--------------▶|-------------------▶|
-   |               |                    |
-   |               | Authorization Code |
-   |               |◀-------------------|
-   |               |                    |
-   |               |                    |
-   |               |                    |
-   |               |     Get Token      |
-   |               |-------------------▶|                    
-   |               |                    |
-   |               |    Access Token    |
-   |               |◀-------------------|
-   |               |                    |
-   |               |                    |
-   |               |                    |
-   |               |   Validate Token   |
-   |               |◀-------------------|
-   |               |                    |
-   |               |     Token Info     |
-   |               |◀-------------------|
-   |               |                    |
+![Example Image](diagram1.png)
 
 Description:
 * Client initiating Google authentication process by accessing Backend '/' endpoint.
-* After User Authentication and grant Permission, Backend calls Google OAuth Server to generate Authorization URL 
+* After User Authentication and grant Permission, Backend calls Google OAuth Server to generate Authorization URL.
 * Backend redirects to '/auth/callback' and extracts the Authorization Code from req.query.
 * Backend calls Google OAuth Server with the Authorization Code to get the Access Token.
 * Google OAuth Server returns the Access Token to the Backend.
@@ -58,16 +35,7 @@ Description:
 
 2) Backend service interactions with Google Calendar and Google People APIs:
 
-Client          Backend            Google APIs
-   |               |                    |
-   | GraphQL Query |    Request Data    |
-   |--------------▶|-------------------▶|
-   |               |                    |
-   | Send Response |   Proccess Data    |    Fetch Data
-   |◀--------------|◀-------------------|◀-------------------
-   |               |                    |
-   |               |                    |
-
+![Example Image](diagram2.png)
     
 Description:
 * Client GraphQL Query to the Backend '/graphql' endpoint.
@@ -79,7 +47,7 @@ Description:
 
 
 ## Usage Examples
-1) GraphQL Request for fetching Contact from Google People API:
+1) GraphQL Request for fetching Contacts from Google People API:
 curl --request POST \
   --url 'http://localhost:3000/graphql?accessToken=YOUR_ACCESS_TOKEN' \
   --header 'Content-Type: application/json' \
