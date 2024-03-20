@@ -1,5 +1,5 @@
 {
-  "name": "fastify-graphql-googleapis",
+  "name": "fastify-graphql-googleapis-demo",
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -10,7 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@graphql-tools/schema": "^10.0.3",
     "axios": "^1.6.7",
     "dotenv": "^16.4.5",
     "fastify": "^4.26.2",
@@ -20,6 +19,9 @@
     "mercurius": "^13.4.0"
   },
   "devDependencies": {
+    "@fastify/cookie": "^9.3.1",
+    "@fastify/session": "^10.7.0",
+    "@graphql-tools/schema": "^10.0.3",
     "@types/node": "^20.11.25",
     "nodemon": "^3.1.0",
     "ts-node": "^10.9.2",

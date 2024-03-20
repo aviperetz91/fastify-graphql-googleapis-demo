@@ -9,3 +9,5 @@ export const SCOPE = [
   'https://www.googleapis.com/auth/calendar.readonly',
   'https://www.googleapis.com/auth/contacts.readonly',
 ];
+
+export const SESSION_SECRET = process.env.SESSION_SECRET;

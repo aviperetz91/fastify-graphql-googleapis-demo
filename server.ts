@@ -1,6 +1,7 @@
 import 'graphql-import-node';
 import fastify from 'fastify';
-
+import session from '@fastify/session';
+import cookie from '@fastify/cookie';
 import { google } from 'googleapis';
 import mercurius from 'mercurius';
 import { makeExecutableSchema } from '@graphql-tools/schema';
@@ -13,7 +14,13 @@ import contactResolvers from './graphql/resolvers/contact.resolvers';
 import eventResolvers from './graphql/resolvers/event.resolvers';
 
 import { validateGoogleAccessToken } from './utils/validateGoogleAccessToken';
-import { CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, SCOPE } from './configuration/credentials';
+import {
+  CLIENT_ID,
+  CLIENT_SECRET,
+  REDIRECT_URI,
+  SCOPE,
+  SESSION_SECRET,
+} from './configuration/constants';
 
 const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 
@@ -24,6 +31,13 @@ const mergedSchema = makeExecutableSchema({
 
 async function main() {
   const server = fastify({ logger: true });
+
+  server.register(cookie);
+
+  server.register(session, {
+    secret: `${SESSION_SECRET}`,
+    cookie: { secure: false },
+  });
 
   server.get('/', async (request, reply) => {
     const authUrl = oAuth2Client.generateAuthUrl({
@@ -42,7 +56,8 @@ async function main() {
       const { tokens } = await oAuth2Client.getToken(authCode);
       oAuth2Client.setCredentials(tokens);
       const accessToken = tokens.access_token;
-      reply.redirect(`/graphql?accessToken=${accessToken}`);
+      (request.session as any).accessToken = accessToken;
+      reply.redirect(`/graphiql`);
     } catch (error) {
       console.error('Error during authentication:', error);
       reply.status(500).send({ error: 'Internal Server Error' });
@@ -54,7 +69,8 @@ async function main() {
     schema: mergedSchema,
     graphiql: true,
     context: async (request, reply) => {
-      const accessToken = (request.query as any).accessToken;
+      const accessToken =
+        (request.query as any).accessToken || (request.session as any).accessToken;
       await validateGoogleAccessToken(accessToken);
       return { accessToken };
     },
