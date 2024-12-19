@@ -178,7 +178,8 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 Avi Peretz
 
-- Linkedin: [https://www.linkedin.com/in/avi-peretz-778ba6177/](https://www.linkedin.com/in/avi-peretz-778ba6177/)
+- Website: [https://www.aviperetz.com](https://www.aviperetz.com/)
+- Linkedin: [https://www.linkedin.com/in/avi-peretz-778ba6177](https://www.linkedin.com/in/avi-peretz-778ba6177/)
 - Email: aviprz91@gmail.com
 
 Project Link: [https://github.com/aviperetz91/fastify-graphql-googleapis-demo](https://github.com/aviperetz91/fastify-graphql-googleapis-demo)
